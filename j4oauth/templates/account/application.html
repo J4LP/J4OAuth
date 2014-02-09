@@ -1,0 +1,110 @@
+
+{% extends "_layouts/base.html" %}
+{% block content %}
+    <h2 class="subline"><small class="pull-right">{{client.tokens|length}} users</small>OAuth Application: {{client.name}}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="">Client ID</label>
+                <input type="text" value="{{client.client_id}}" readonly class="form-control click-focus">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="">Client Secret</label>
+                <input type="text" value="{{client.client_secret}}" readonly class="form-control click-focus">
+            </div>
+            <div class="pull-right">
+                <a href="#" class="btn btn-warning js-revoke-tokens">{{ icon('trash-o') }} Revoke all tokens</a>
+                <a href="#" class="btn btn-warning js-refresh-secret">{{ icon('refresh') }} Reset secret</a>
+            </div>
+        </div>
+        <form class="col-md-8 col-md-offset-2" method="post" action="{{ url_for('account.application', client_id=client.client_id) }}">
+        {{ form.csrf_token }}
+        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+            <label for="name">Application name</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('quote-right') }}</span>
+                <input type="text" class="form-control" id="name" name="name" autofocus {% if form.name.data %}value="{{ form.name.data }}"{% endif %}>
+            </div>
+            {% if form.name.errors %}
+                {% for error in form.name.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.homepage.errors %}has-error{% endif %}">
+            <label for="homepage">Homepage URL</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('home')}}</span>
+                <input type="text" class="form-control" id="homepage" name="homepage" {% if form.homepage.data %}value="{{ form.homepage.data }}"{% endif %}>
+            </div>
+            {% if form.homepage.errors %}
+                {% for error in form.homepage.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+            <label for="description">Application description</label>
+            <textarea class="form-control" id="description" name="description">{% if form.description.data %}{{ form.description.data }}{% endif %}</textarea>
+            {% if form.description.errors %}
+                {% for error in form.description.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.redirect_uri.errors %}has-error{% endif %}">
+            <label for="redirect_uri">Redirection URL</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('refresh') }}</span>
+                <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" {% if form.redirect_uri.data %}value="{{ form.redirect_uri.data }}"{% endif %}>
+            </div>
+            <span class="help-block">List of space separated URLs</span>
+            {% if form.redirect_uri.errors %}
+                {% for error in form.redirect_uri.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group row">
+            <div class="col-md-12">
+                <a href="#" class="btn btn-danger pull-left">{{ icon('trash-o') }} Delete application</a>
+                <button type="submit" class="btn btn-success pull-right">{{ icon('plus') }} Update application</button>
+            </div>
+        </div>
+    </form>
+    </div>
+    <form class="js-revoke-tokens-form" action="{{ url_for('account.application_revoke_tokens', client_id=client.client_id) }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/></form>
+    <form class="js-refresh-secret-form" action="{{ url_for('account.application_refresh_secret', client_id=client.client_id) }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/></form>
+
+    <script>
+        $(document).ready(function() {
+            $('.click-focus').on('click', function() {
+                this.focus();
+                this.setSelectionRange(0, $(this).val().length);
+            });
+            $('.js-revoke-tokens').on('click', function () {
+                bootbox.confirm(
+                    'You are going to revoke all your application users\' token, are you sure ?',
+                    function (confirm) {
+                        if (confirm === true) {
+                            $('.js-revoke-tokens-form').submit();
+                        }
+                    }
+                )
+            });
+            $('.js-refresh-secret').on('click', function () {
+                bootbox.confirm(
+                    'You are going to refresh your secret, are you sure ? <br>Please note that you will need to edit your application settings.',
+                    function (confirm) {
+                        if (confirm === true) {
+                            $('.js-refresh-secret-form').submit();
+                        }
+                    }
+                )
+            })
+        })
+    </script>
+
+{% endblock %}

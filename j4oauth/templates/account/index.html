@@ -1,0 +1,53 @@
+
+{% extends "_layouts/base.html" %}
+{% block content %}
+    <h2 class="subline">OAuth Account</h2>
+    <div class="panel panel-default">
+        <div class="panel-heading">Authorized Applications</div>
+        {% if tokens %}
+            <table class="table table-vert-center">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Application Name</th>
+                        <th>Permissions</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for token in tokens %}
+                        <tr>
+                            <td class="text-center"><img src="http://placehold.it/30x30" alt=""></td>
+                            <td>{{token.client.name}}</td>
+                            <td></td>
+                            <td><a href="{{url_for('account.revoke_token', token_id=token.id)}}" class="btn btn-danger btn-small pull-right">Revoke</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="panel-body">
+                Nothing here...
+            </div>
+        {% endif %}
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% if 'inpatients' in current_user.groups %}<a href="{{ url_for('account.new_application') }}" class="btn btn-xs btn-success pull-right">{{ icon('plus') }} New Application</a>{% endif %}
+            Developer Applications</div>
+        {% if 'inpatients' not in current_user.groups %}
+            <p>Interested in developing applications for us ? Contact us !</p>
+        {% else %}
+            {% for app in applications %}
+                <table class="table table-vert-center">
+                    <tbody>
+                        <tr>
+                            <td>{{app.name}} (<a href="#">{{app.homepage}}</a>)</td>
+                            <td class="text-right">{{ app.tokens|length }} users <a href="{{url_for('account.application', client_id=app.client_id)}}" class="btn btn-xs btn-primary">Manage</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

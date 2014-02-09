@@ -1,0 +1,135 @@
+html {
+  overflow-y: scroll;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+section {
+  overflow: auto;
+}
+
+textarea {
+  resize: vertical;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', sans-serif;
+}
+
+@carot: #e67e22;
+
+@media (min-width: 1200px) {
+  .container {
+    width: 970px;
+  }
+}
+
+.page-header {
+  margin-top: 0;
+}
+
+.navbar-inverse {
+  background-color: @carot;
+  border-radius: 0;
+  border-color: darken(@carot, 1%)
+}
+
+.navbar-brand {
+  color: white !important;
+}
+
+.navbar-nav {
+  > .active > a {
+    background-color: darken(@carot, 10%) !important;
+  }
+  li > a:hover {
+    background-color: darken(@carot, 10%) !important;
+  }
+  li > a {
+    color: white !important;
+  }
+}
+
+.messages-container .alert:last-child {
+  margin-bottom: 0;
+}
+
+.navbar-main, .navbar-search {
+  padding-right: 0;
+}
+
+.navbar-user {
+  margin-right: 10px !important;
+}
+
+.subline {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid darken(#eee, 10%);
+}
+
+.oauth-title {
+  text-align: center;
+  @media (min-width:992px) {
+    text-align: left;
+  }
+}
+
+.oauth-illustrations {
+  text-align: center;
+  @media (min-width:992px) {
+    text-align: right;
+  }
+  .thumbnail {
+    width: 64px;
+    display: inline-block;
+    margin-right: 20px;
+    &:last-child {
+      margin-left: 15px;
+      margin-right: 0;
+    }
+  }
+}
+
+.oauth-permission-icon {
+  margin-right: 15px;
+}
+
+.oauth-action-btn {
+  @media (max-width: 992px) {
+    margin-bottom: 20px;
+  }
+}
+
+.home-nav {
+  margin-top: 20px;
+  text-align: center;
+  .home-nav-btn {
+    background-color: lighten(@carot, 20%);
+    color: white;
+    border-radius: 3px;
+    &:hover {
+      background-color: @carot;
+      text-decoration: none;
+    }
+    @media (max-width: 992px) {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+.navbar-inverse .navbar-toggle {
+  border-color: darken(@carot, 20%);
+  &:hover {
+    background-color: darken(@carot, 20%);
+  }
+}
+
+.table-vert-center {
+  tbody > tr > td {
+    vertical-align: middle;
+  }
+}
+

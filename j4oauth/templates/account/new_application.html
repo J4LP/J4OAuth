@@ -1,0 +1,58 @@
+
+{% extends "_layouts/base.html" %}
+{% block content %}
+    <h2 class="subline">New OAuth Application</h2>
+    <form class="col-md-8 col-md-offset-2" method="post" action="{{ url_for('account.new_application') }}">
+        {{ form.csrf_token }}
+        <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+            <label for="name">Application name</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('quote-right') }}</span>
+                <input type="text" class="form-control" id="name" name="name" autofocus {% if form.name.data %}value="{{ form.name.data }}"{% endif %}>
+            </div>
+            {% if form.name.errors %}
+                {% for error in form.name.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.homepage.errors %}has-error{% endif %}">
+            <label for="homepage">Homepage URL</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('home')}}</span>
+                <input type="text" class="form-control" id="homepage" name="homepage" {% if form.homepage.data %}value="{{ form.homepage.data }}"{% endif %}>
+            </div>
+            {% if form.homepage.errors %}
+                {% for error in form.homepage.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+            <label for="description">Application description</label>
+            <textarea class="form-control" id="description" name="description">{% if form.description.data %}{{ form.description.data }}{% endif %}</textarea>
+            {% if form.description.errors %}
+                {% for error in form.description.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group {% if form.redirect_uri.errors %}has-error{% endif %}">
+            <label for="redirect_uri">Redirection URL</label>
+            <div class="input-group">
+                <span class="input-group-addon">{{ icon('refresh') }}</span>
+                <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" {% if form.redirect_uri.data %}value="{{ form.redirect_uri.data }}"{% endif %}>
+            </div>
+            {% if form.redirect_uri.errors %}
+                {% for error in form.redirect_uri.errors %}
+                    <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-success pull-right">{{ icon('plus') }} Save application</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

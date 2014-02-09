@@ -1,0 +1,120 @@
+html {
+  overflow-y: scroll;
+}
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+section {
+  overflow: auto;
+}
+textarea {
+  resize: vertical;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Open Sans', sans-serif;
+}
+@media (min-width: 1200px) {
+  .container {
+    width: 970px;
+  }
+}
+.page-header {
+  margin-top: 0;
+}
+.navbar-inverse {
+  background-color: #e67e22;
+  border-radius: 0;
+  border-color: #e57b1d;
+}
+.navbar-brand {
+  color: white !important;
+}
+.navbar-nav > .active > a {
+  background-color: #bf6516 !important;
+}
+.navbar-nav li > a:hover {
+  background-color: #bf6516 !important;
+}
+.navbar-nav li > a {
+  color: white !important;
+}
+.messages-container .alert:last-child {
+  margin-bottom: 0;
+}
+.navbar-main,
+.navbar-search {
+  padding-right: 0;
+}
+.navbar-user {
+  margin-right: 10px !important;
+}
+.subline {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d5d5d5;
+}
+.oauth-title {
+  text-align: center;
+}
+@media (min-width: 992px) {
+  .oauth-title {
+    text-align: left;
+  }
+}
+.oauth-illustrations {
+  text-align: center;
+}
+@media (min-width: 992px) {
+  .oauth-illustrations {
+    text-align: right;
+  }
+}
+.oauth-illustrations .thumbnail {
+  width: 64px;
+  display: inline-block;
+  margin-right: 20px;
+}
+.oauth-illustrations .thumbnail:last-child {
+  margin-left: 15px;
+  margin-right: 0;
+}
+.oauth-permission-icon {
+  margin-right: 15px;
+}
+@media (max-width: 992px) {
+  .oauth-action-btn {
+    margin-bottom: 20px;
+  }
+}
+.home-nav {
+  margin-top: 20px;
+  text-align: center;
+}
+.home-nav .home-nav-btn {
+  background-color: #f0b37e;
+  color: white;
+  border-radius: 3px;
+}
+.home-nav .home-nav-btn:hover {
+  background-color: #e67e22;
+  text-decoration: none;
+}
+@media (max-width: 992px) {
+  .home-nav .home-nav-btn {
+    margin-bottom: 20px;
+  }
+}
+.navbar-inverse .navbar-toggle {
+  border-color: #924d10;
+}
+.navbar-inverse .navbar-toggle:hover {
+  background-color: #924d10;
+}
+.table-vert-center tbody > tr > td {
+  vertical-align: middle;
+}

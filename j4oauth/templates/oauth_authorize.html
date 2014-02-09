@@ -1,0 +1,82 @@
+
+{% extends "_layouts/base.html" %}
+{% block content %}
+    <div class="subline">
+        <div class="row">
+            <div class="col-md-8 oauth-title">
+                <h1>Authorize application</h1>
+                <p class="lead"><a href="#">{{ client.name }}</a> by <span class="text-muted">{{ client.user.character_name }}</span> wants permission to access your J4LP Auth account.</p>
+            </div>
+            <div class="col-md-4 oauth-illustrations">
+                <img src="http://auth.j4lp.com/static/img/chikun.png" alt="" class="thumbnail oauth-app-logo">
+                <i class="fa fa-arrow-right fa-3x"></i>
+                <img src="https://image.eveonline.com/Character/{{ current_user.character_id }}_64.jpg" alt="" class="thumbnail oauth-user-picture">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p>Here's the permissions it already has:</p>
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-success">
+                    <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-info fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="list-group-item-heading">Auth Character and Status</h4>
+                    <p class="list-group-item-text">Access to your primary character name as well as your auth status (Alliance, Ally, Purged, etc...).</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p>Here's the permissions it's requesting:</p>
+            <div class="list-group">
+                <a href="#" class="list-group-item">
+                    <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-info fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="list-group-item-heading">Auth Character and Status</h4>
+                    <p class="list-group-item-text">Access to your primary character name as well as your auth status (Alliance, Ally, Purged, etc...).</p>
+                </a>
+                <a href="#" class="list-group-item">
+                    <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="list-group-item-heading">Characters</h4>
+                    <p class="list-group-item-text">Access to all the characters associated with your auth account with a limited API access to their core data.</p>
+                </a>
+                <a href="#" class="list-group-item">
+                    <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-usd fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="list-group-item-heading">Wallet</h4>
+                    <p class="list-group-item-text">Access to your wallet journal and associated transactions for all your characters.</p>
+                </a>
+                <a href="#" class="list-group-item">
+                    <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-rocket fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <h4 class="list-group-item-heading">Assets</h4>
+                    <p class="list-group-item-text">Access to your assets list for all your characters.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <form action="{{ url_for('authorize') + '?' + query_string}}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="col-md-6 oauth-action-btn">
+                <button class="btn btn-block btn-success btn-lg" name="accept" value="true" type="submit">Accept</button>
+            </div>
+            <div class="col-md-6 oauth-action-btn">
+                <button class="btn btn-block btn-danger btn-lg" name="accept" value="false" type="submit">Deny</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
