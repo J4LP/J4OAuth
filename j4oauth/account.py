@@ -43,7 +43,8 @@ def application(client_id):
             db.session.commit()
         except Exception as e:
             app.logger.exception(e)
-            flash('There was an issue updating your application, please try again or contact support', 'danger')
+            flash('There was an issue updating your application, '
+                  'please try again or contact support', 'danger')
         else:
             flash('Application updated', 'success')
         return redirect(url_for('.application', client_id=client.client_id))
@@ -68,7 +69,8 @@ def application_revoke_tokens(client_id):
         db.session.commit()
     except Exception as e:
         app.logger.exception(e)
-        flash('There was an issue revoking this application\'s tokens, please try again or contact support', 'danger')
+        flash('There was an issue revoking this application\'s tokens, '
+              'please try again or contact support', 'danger')
     else:
         flash('Tokens revoked with success', 'success')
     return redirect(url_for('.application', client_id=client.client_id))
@@ -90,7 +92,8 @@ def application_refresh_secret(client_id):
         db.session.commit()
     except Exception as e:
         app.logger.exception(e)
-        flash('There was an issue refreshing this application\'s secret, please try again or contact support', 'danger')
+        flash('There was an issue refreshing this application\'s secret, '
+              'please try again or contact support', 'danger')
     else:
         flash('Client secret refreshed', 'success')
     return redirect(url_for('.application', client_id=client.client_id))
@@ -139,7 +142,7 @@ def new_application():
         client.generate_keys()
         client.user_id = current_user.id
         client.is_confidential = True
-        client._default_scopes = 'info'
+        client._default_scopes = 'auth_info'
         db.session.add(client)
         try:
             db.session.commit()

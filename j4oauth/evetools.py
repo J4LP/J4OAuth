@@ -57,3 +57,115 @@ def get_character_id(character_name=None):
             names=[character_name]).characters[0]['characterID']
         r.set('eve:name_id:{}'.format(character_name), character_id)
     return character_id
+
+
+class EveTools(object):
+
+    def __init__(self, key_id=None, vcode=None, cache=True):
+        if cache:
+            self.client = eveapi.EVEAPIConnection(
+                cacheHandler=RedisEveAPICacheHandler(
+                    debug=app.config['DEBUG']))
+        else:
+            self.client = eveapi.EVEAPIConnection()
+        if key_id and vcode:
+            self.auth(key_id, vcode)
+
+    def auth(self, key_id, vcode):
+        self.key_id = key_id
+        self.vcode = vcode
+        self.client = self.client.auth(keyID=key_id, vCode=vcode)
+        self.authed = True
+
+    def safe_request(self, request, kwargs=None):
+        try:
+            req = getattr(self.client, request)
+            if kwargs is not None:
+                results = req(**kwargs)
+            else:
+                results = req()
+        except eveapi.Error as e:
+            app.logger.exception(e)
+            raise Exception('API Error, {}'.format(e.message))
+        except RuntimeError as e:
+            app.logger.exception(e)
+            raise Exception('CCP Server Error, {}'.format(e.message))
+        except Exception as e:
+            app.logger.exception(e)
+            raise Exception('System error, our team has been notified !')
+        return results
+
+    def check_key(self):
+        key_info = self.safe_request('account/APIKeyInfo')
+        access_mask, key_type, expires = key_info.key.accessMask, key_info.key.type, key_info.key.expires
+        if access_mask != 8388608:
+            raise Exception('Invalid access mask')
+        if key_type not in ['Character', 'Account']:
+            raise Exception('Invalid key type')
+        if expires != "":
+            raise Exception('Expiration detected on key')
+        return True
+
+    def get_characters(self):
+        key_info = self.safe_request('account/APIKeyInfo')
+        characters = []
+        for character in key_info.key.characters:
+            characters.append(self.safe_request('eve/CharacterInfo', {'characterID': character['characterID']}))
+        return characters
+
+
+    @staticmethod
+    def rowset_to_dict(rowset):
+        """
+        This method assume it receives a eveapi.Rowset or eveapi.IndexRowset
+        and will convert it to a dict for easy serialization.
+        """
+        result = []
+        for row in rowset:
+            result.append(EveTools.row_to_dict(row))
+        return result
+
+
+    @staticmethod
+    def row_to_dict(row):
+        """
+        This method assume it receives an eveapi.Row and will convert it
+        to a dict for easy serialization.
+        """
+        result = {}
+        for index, key in enumerate(row.__dict__['_cols']):
+            result[key] = row.__dict__['_row'][index]
+        return result
+
+    @staticmethod
+    def element_to_dict(element):
+        """
+        This method assume it receives an eveapi.Element and will convert it to
+        a dict for easy serialization.
+        """
+        result = {}
+        for key, value in element.__dict__.iteritems():
+            if isinstance(value, eveapi.Rowset) or isinstance(
+                    value, eveapi.IndexRowset):
+                print(EveTools.rowset_to_dict(value))
+                result[key] = EveTools.rowset_to_dict(value)
+            else:
+                if key not in ('_meta', '_name', '_isrow'):
+                    result[key] = value
+        return result
+
+
+    @staticmethod
+    def auto_to_dict(resource):
+        """
+        Easy mode method to detect and convert to dict an eveapi.Resource
+        """
+        if isinstance(resource, eveapi.Element):
+            return EveTools.element_to_dict(resource)
+        elif isinstance(resource, eveapi.Row):
+            return EveTools.row_to_dict(resource)
+        elif isinstance(resource, eveapi.Rowset) \
+            or isinstance(resource, eveapi.IndexRowset):
+            return EveTools.rowset_to_dict(resource)
+        else:
+            return None

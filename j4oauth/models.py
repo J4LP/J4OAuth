@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
 from werkzeug.security import gen_salt
-from j4oauth.app import db, ldaptools
+from j4oauth.app import db, ldaptools, redis
 
 
 class Client(db.Model):
@@ -120,3 +121,49 @@ class Token(db.Model):
     @property
     def user(self):
         return ldaptools.get_user(self.user_id)
+
+
+class Scope(db.Model):
+    slug = db.Column(db.String(255), primary_key=True)
+    name = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(40))
+
+    @staticmethod
+    def from_dict(data):
+        """
+        Returns a new Scope from a dict
+        """
+        self = Scope()
+        for c in self.__table__.columns:
+            if c.name in data:
+                setattr(self, c.name, data[c.name])
+        return self
+
+    def to_dict(self):
+        """
+        Return a dict for easy serialization
+        """
+        return {
+            'slug': self.slug,
+            'name': self.name,
+            'description': self.description,
+            'icon': self.icon
+        }
+
+    @staticmethod
+    def all():
+        """
+        Return the list of scopes from cache or build it and cache it
+        """
+        scopes = redis.get('j4oauth:scopes')
+        if scopes is None:
+            _scopes = Scope.query.all()
+            redis.set('j4oauth:scopes', json.dumps([scope.to_dict()
+                                                    for scope in _scopes]))
+            redis.expire('j4oauth:scopes', 60 * 60)
+            scopes = {scope.slug: scope for scope in _scopes}
+        else:
+            scopes = {scope['slug']: Scope.from_dict(scope)
+                      for scope in json.loads(scopes)}
+        return scopes

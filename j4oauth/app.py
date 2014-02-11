@@ -8,6 +8,7 @@ from flask.ext.assets import Environment
 from flask.ext.login import LoginManager
 from flask.ext.migrate import Migrate
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask_redis import Redis
 from flask_wtf.csrf import CsrfProtect
 from flask_oauthlib.provider import OAuth2Provider
 from webassets.loaders import PythonLoader
@@ -53,6 +54,8 @@ ldaptools = LDAPTools(app.config)
 migrate = Migrate(app, db)
 
 oauth = OAuth2Provider(app)
+
+redis = Redis(app)
 
 # Register asset bundles
 assets_env = Environment()

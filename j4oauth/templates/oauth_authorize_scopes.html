@@ -16,7 +16,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <p>Here's the permissions it's requesting:</p>
+            <p>Here's the permissions it already has:</p>
             <div class="list-group">
             {% for scope in token.scopes %}
                 {% with scope = Scopes[scope] %}
@@ -34,6 +34,25 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-12">
+            <p>Here's the <strong>new</strong> permissions it's requesting:</p>
+            <div class="list-group">
+                {% for scope in new_scopes %}
+                    {% with scope = Scopes[scope] %}
+                    <a href="#" class="list-group-item">
+                        <span class="fa-stack fa-lg pull-left oauth-permission-icon">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-{{scope.icon}} fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="list-group-item-heading">{{scope.name}}</h4>
+                        <p class="list-group-item-text">{{scope.description}}</p>
+                    </a>
+                {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <form action="{{ url_for('authorize') + '?' + query_string}}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="col-md-6 oauth-action-btn">
@@ -44,4 +63,5 @@
             </div>
         </form>
     </div>
+    <br>
 {% endblock %}

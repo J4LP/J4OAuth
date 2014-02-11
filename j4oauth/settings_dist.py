@@ -27,6 +27,7 @@ class ProdConfig(Config):
         "memberdn": "ou=People,dc=j4lp,dc=com"
     }
     APPLICATION_ROOT = '/oauth/'
+    REDIS_URL = "redis://:password@localhost:6379/0"
 
 
 class DevConfig(Config):
@@ -44,4 +45,5 @@ class DevConfig(Config):
         "basedn": "dc=j4dev,dc=local",
         "memberdn": "ou=People,dc=j4dev,dc=local"
     }
+    REDIS_URL = "redis://:password@localhost:6379/0"
 

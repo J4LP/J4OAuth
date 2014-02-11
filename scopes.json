@@ -1,0 +1,14 @@
+[
+    {
+        "slug": "auth_info",
+        "name": "Auth Character and Status",
+        "description": "Access to your primary character name as well as your auth status (Alliance, Ally, Purged, etc...).",
+        "icon": "info"
+    },
+    {
+        "slug": "characters",
+        "name": "Characters",
+        "description":"Access to all the characters associated with your auth account with a limited API access to their core data.",
+        "icon": "users"
+    }
+]

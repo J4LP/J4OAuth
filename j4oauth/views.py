@@ -8,7 +8,7 @@ from j4oauth.account import account
 from j4oauth.api import api
 from j4oauth.app import app, db, ldaptools, login_manager, oauth
 from j4oauth.forms import LoginForm
-from j4oauth.models import Client, Token, Grant
+from j4oauth.models import Client, Token, Grant, Scope
 
 login_manager.login_view = 'login'
 
@@ -25,7 +25,11 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Login view, ties with our LDAP authentication and Flask-Login
+    """
     if current_user.is_authenticated():
+        # Probably coming from an OAuth request
         return redirect(request.args.get('next') or url_for('home'))
     login_form = LoginForm()
     if login_form.validate_on_submit():
@@ -33,7 +37,7 @@ def login():
             ldap_check = ldaptools.check_credentials(
                 login_form.username.data, login_form.password.data)
         except Exception as e:
-            app.logger.exception(e)
+            # Check credentials raise an exception if there's a server issue
             flash(
                 'Due to a server issue, we could not authenticate you. '
                 'Please wait a bit and try again', 'danger')
@@ -52,12 +56,14 @@ def login():
             else:
                 return redirect(request.form.get('next'))
         else:
+            # Bad nerd
             flash('Invalid credentials, please try again.', 'danger')
             if request.form.get('next') == 'None':
                 return redirect(url_for('login'))
             else:
                 return redirect(url_for('login') + request.form.get('next'))
     if login_form.is_submitted() is True:
+        # Form was submitted but invalid
         flash('There was an error logging you in, '
               'please check your credentials', 'danger')
     return render_template('login.html',
@@ -66,6 +72,9 @@ def login():
 
 @app.route('/logout', methods=['GET'])
 def logout():
+    """
+    Logout view
+    """
     logout_user()
     session.clear()
     return redirect(url_for('home'))
@@ -75,18 +84,33 @@ def logout():
 @oauth.authorize_handler
 @login_required
 def authorize(*args, **kwargs):
+    """
+    OAuth authorization screen, will display the list of scopes and a yes/no
+    TODO: Make sure this is somewhat secure
+    """
     client_id = kwargs.get('client_id')
     client = Client.query.filter_by(client_id=client_id).first()
     kwargs['client'] = client
     if request.method == 'GET':
-        return render_template('oauth_authorize.html',
-                               query_string=request.query_string, **kwargs)
-    confirm = request.form.get('accept', 'false')
-    if confirm == 'true':
-        return True
-    else:
-        flash('This OAuth request was successfully cancelled', 'danger')
-        return redirect('home')
+        # Let's see if we don't already have a token for this user/app ?
+        token = Token.query.filter_by(
+            user_id=current_user.id, client_id=client_id).first()
+        kwargs['Scopes'] = Scope.all()
+        if token and token.scopes != kwargs['scopes']:
+            # We already have a token but different permissions
+            kwargs['token'] = token
+            kwargs['new_scopes'] = [scope for scope in kwargs['scopes']
+                                    if scope not in token.scopes]
+            return render_template('oauth_authorize_scopes.html',
+                                   query_string=request.query_string, **kwargs)
+        if not token:
+            # No ? Let's ask the user then
+            return render_template('oauth_authorize.html',
+                                   query_string=request.query_string, **kwargs)
+        # Everything match ? Done.
+        return oauth.confirm_authorization_request()
+    # Request is POST
+    return request.form.get('accept', 'false') == 'true'
 
 
 @app.route('/token', methods=['GET'])
@@ -112,6 +136,7 @@ def load_grant(client_id, code):
 
 @oauth.grantsetter
 def save_grant(client_id, code, request, *args, **kwargs):
+    # TODO: Grants are temporary, should put them in redis or somewhere
     expires = datetime.utcnow() + timedelta(seconds=100)
     grant = Grant(
         client_id=client_id,
@@ -171,6 +196,9 @@ def server_error(e):
 
 @app.context_processor
 def inject_icon():
+    """
+    Handy template method for quick icons
+    """
     def icon(icon_name):
         return Markup('<i class="fa fa-{icon}"></i>'.format(icon=icon_name))
     return dict(icon=icon)
