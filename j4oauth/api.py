@@ -60,24 +60,33 @@ def corporation_users(resp, corporation_name):
     } for user in users])
 
 
+@api.route('/v1/user/<username>')
+def user_info(username):
+    """
+    Returns all the auth info for a specific user
+    """
+    user = ldaptools.get_user(username)
+    return jsonify(user={
+        'main_character': user.character_name,
+        'corporation': user.main_corporation,
+        'alliance': user.main_alliance,
+        'auth_status': user.accountStatus[0]
+    })
+
+
 @api.route('/v1/user/<username>/skills')
-@oauth.require_oauth()
-def user_skills(resp, username):
+def user_skills(username):
     """
     Returns all the skills for a specific user
     """
-    if not resp.client.admin_access:
-        return jsonify(error='Unauthorized access'), 403
     user = ldaptools.get_user(username)
     eve = EveTools(key_id=user.keyID[0], vcode=user.vCode[0], cache=True)
     return jsonify(skills=eve.get_skills(user.character_id))
 
 
 @api.route('/v1/user/<username>/assets')
-def user_assets(resp, username):
+def user_assets(username):
     """
     Returns all the assets for a specific user
     """
-    if not resp.client.admin_access:
-        return jsonify(error='Unauthorized access'), 403
     return jsonify(assets=[])
