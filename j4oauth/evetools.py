@@ -60,17 +60,27 @@ def get_character_id(character_name=None):
     return character_id
 
 
-def get_skill_name(skill_id):
-    skill_name = r.get('eve:skills:{}'.format(skill_id))
-    if skill_name is None:
+def get_skill(skill_id):
+    skill = r.get('eve:skills:{}'.format(skill_id))
+    try:
+        skill = json.loads(skill)
+    except Exception:
+        skill = None
+    else:
+        return skill
+    if skill is None:
         client = EveTools()
         skills_groups = client.safe_request('eve/SkillTree').skillGroups
         for skill_group in skills_groups:
             for skill in skill_group.skills:
                 if skill['typeID'] == skill_id:
-                    r.set('eve:skills:{}'.format(skill_id), skill['typeName'])
-                    return skill['typeName']
-    return skill_name
+                    _skill = {
+                        'name': skill['typeName'],
+                        'group_name': skill_group['groupName'],
+                        'group_id': skill_group['groupID']
+                    }
+                    r.set('eve:skills:{}'.format(skill_id), json.dumps(_skill))
+                    return _skill
 
 
 class EveTools(object):
@@ -131,8 +141,11 @@ class EveTools(object):
         sheet = self.safe_request('char/CharacterSheet', {'characterID': character_id})
         skills = []
         for skill in sheet.skills:
+            _skill = get_skill(skill.typeID)
             skills.append({
-                'name': get_skill_name(skill.typeID),
+                'name': _skill['name'],
+                'group_name': _skill['group_name'],
+                'group_id': _skill['group_id'],
                 'level': skill.level
             })
         return skills
