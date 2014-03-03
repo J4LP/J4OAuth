@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from j4oauth.app import ldaptools, oauth
 from j4oauth.evetools import EveTools
+from j4oauth.utils import api_check
 
 api = Blueprint('api', __name__)
 
@@ -43,7 +44,7 @@ def characters(req):
 
 
 @api.route('/v1/corporation/<corporation_name>/users')
-@oauth.require_oauth()
+@api_check
 def corporation_users(resp, corporation_name):
     """
     Returns all the corporation users
@@ -61,6 +62,7 @@ def corporation_users(resp, corporation_name):
 
 
 @api.route('/v1/user/<username>')
+@api_check
 def user_info(username):
     """
     Returns all the auth info for a specific user
@@ -75,6 +77,7 @@ def user_info(username):
 
 
 @api.route('/v1/user/<username>/skills')
+@api_check
 def user_skills(username):
     """
     Returns all the skills for a specific user
@@ -85,6 +88,7 @@ def user_skills(username):
 
 
 @api.route('/v1/user/<username>/assets')
+@api_check
 def user_assets(username):
     """
     Returns all the assets for a specific user

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Helper utilities and decorators.'''
-from flask import session, flash, redirect, url_for, Response
+from flask import abort, request, session, flash, redirect, url_for, Response
 from flask.ext.login import current_user
 from functools import wraps
 
@@ -44,3 +44,13 @@ class ReverseProxied(object):
         if scheme:
             environ['wsgi.url_scheme'] = scheme
         return self.app(environ, start_response)
+
+
+def api_check(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api = request.args.get('api_key', None)
+        if api is None or api != '6GmaAURBH0bKzDsljneFsA':
+            return abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
