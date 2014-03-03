@@ -23,6 +23,8 @@ class Client(db.Model):
     # public or confidential
     is_confidential = db.Column(db.Boolean)
 
+    admin_access = db.Column(db.Boolean, default=False)
+
     _redirect_uris = db.Column(db.Text)
     _default_scopes = db.Column(db.Text)
 

@@ -20,6 +20,14 @@ def auth_user(req):
     })
 
 
+@api.route('/v1/auth_groups')
+@oauth.require_oauth('auth_groups')
+def auth_groups(req):
+    """
+    Return Auth groups
+    """
+    return jsonify(groups=[group for group in req.user.get_authgroups()])
+
 @api.route('/v1/characters')
 @oauth.require_oauth('characters')
 def characters(req):
@@ -35,10 +43,13 @@ def characters(req):
 
 
 @api.route('/v1/corporation/<corporation_name>/users')
-def corporation_users(corporation_name):
+@oauth.require_oauth()
+def corporation_users(resp, corporation_name):
     """
     Returns all the corporation users
     """
+    if not resp.client.admin_access:
+        return jsonify(error='Unauthorized access'), 403
     users = ldaptools.get_users('corporation={}'.format(corporation_name))
     return jsonify(users=[{
         'user_id': user.id,
@@ -50,18 +61,23 @@ def corporation_users(corporation_name):
 
 
 @api.route('/v1/user/<username>/skills')
-def user_skills(username):
+@oauth.require_oauth()
+def user_skills(resp, username):
     """
     Returns all the skills for a specific user
     """
+    if not resp.client.admin_access:
+        return jsonify(error='Unauthorized access'), 403
     user = ldaptools.get_user(username)
     eve = EveTools(key_id=user.keyID[0], vcode=user.vCode[0], cache=True)
     return jsonify(skills=eve.get_skills(user.character_id))
 
 
 @api.route('/v1/user/<username>/assets')
-def user_assets(username):
+def user_assets(resp, username):
     """
     Returns all the assets for a specific user
     """
+    if not resp.client.admin_access:
+        return jsonify(error='Unauthorized access'), 403
     return jsonify(assets=[])
