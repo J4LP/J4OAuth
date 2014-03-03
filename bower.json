@@ -2,6 +2,7 @@
   "name": "j4oauth",
   "version": "0.0.1",
   "dependencies": {
-    "bootstrap": "~3.1.0"
+    "bootstrap": "~3.1.0",
+    "jquery": "~2.1.0"
   }
 }
