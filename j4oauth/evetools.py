@@ -4,7 +4,7 @@ import eveapi
 import json
 import redis
 import time
-from j4oauth.app import app
+from j4oauth.app import app, db
 
 r = redis.StrictRedis(host=app.config['REDIS'])
 
@@ -28,17 +28,18 @@ class RedisEveAPICacheHandler(object):
             return None
         else:
             cached = cPickle.loads(cached)
-            # if time.time() < cached[0]:
-            #    self.log("%s: returning cached document" % path)
-            #    return cached[1]
-            return cached[1]
-            #self.log("%s: cache expired, purging !" % path)
-            # self.r.delete(key)
+            if time.time() < cached[0]:
+                self.log("%s: returning cached document" % path)
+                return cached[1]
+            self.log("%s: cache expired, purging !" % path)
+            self.r.delete(key)
 
     def store(self, host, path, params, doc, obj):
         key = hash((host, path, frozenset(params.items())))
-
-        cachedFor = obj.cachedUntil - obj.currentTime
+        if obj.cachedUntil == obj.currentTime:
+            cachedFor = obj.currentTime + 60 * 15 - obj.currentTime
+        else:
+            cachedFor = obj.cachedUntil - obj.currentTime
         if cachedFor:
             self.log("%s: cached (%d seconds)" % (path, cachedFor))
 
@@ -57,6 +58,19 @@ def get_character_id(character_name=None):
             names=[character_name]).characters[0]['characterID']
         r.set('eve:name_id:{}'.format(character_name), character_id)
     return character_id
+
+
+def get_skill_name(skill_id):
+    skill_name = r.get('eve:skills:{}'.format(skill_id))
+    if skill_name is None:
+        client = EveTools()
+        skills_groups = client.safe_request('eve/SkillTree').skillGroups
+        for skill_group in skills_groups:
+            for skill in skill_group.skills:
+                if skill['typeID'] == skill_id:
+                    r.set('eve:skills:{}'.format(skill_id), skill['typeName'])
+                    return skill['typeName']
+    return skill_name
 
 
 class EveTools(object):
@@ -113,6 +127,15 @@ class EveTools(object):
             characters.append(self.safe_request('eve/CharacterInfo', {'characterID': character['characterID']}))
         return characters
 
+    def get_skills(self, character_id):
+        sheet = self.safe_request('char/CharacterSheet', {'characterID': character_id})
+        skills = []
+        for skill in sheet.skills:
+            skills.append({
+                'name': get_skill_name(skill.typeID),
+                'level': skill.level
+            })
+        return skills
 
     @staticmethod
     def rowset_to_dict(rowset):

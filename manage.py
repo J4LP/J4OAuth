@@ -54,6 +54,10 @@ def watch_assets():
 
 @manager.command
 def import_scopes():
+    db_scopes = Scope.query.all()
+    for db_scope in db_scopes:
+        db.session.delete(db_scope)
+    db.session.commit()
     with open("scopes.json") as f:
         scopes = json.loads(f.read())
     for scope in scopes:

@@ -18,11 +18,15 @@ class LDAPTools():
         self.authconfig = config
         self.config = config['LDAP']
 
+    def get_ldap_object(self):
+        l = ldap.initialize(self.config['server'])
+        l.simple_bind(self.config['admin'], self.config['password'])
+        return l
+
     def get_user(self, id):
         if not isinstance(id, basestring):
             id = id[0]
-        l = ldap.initialize(self.config["server"])
-        l.simple_bind(self.config["admin"], self.config["password"])
+        l = self.get_ldap_object()
         ldap_filter = "uid=" + id
         result_id = l.search(
             self.config["memberdn"], ldap.SCOPE_SUBTREE, ldap_filter, None)
@@ -31,9 +35,23 @@ class LDAPTools():
         if data:
             dn, attrs = data[0]
             l.unbind_s()
-            return self.User(attrs, self.authconfig["AUTH"]["domain"])
+            return self.User(attrs)
         l.unbind_s()
         return None
+
+    def get_users(self, filter):
+        l = self.get_ldap_object()
+        result_id = l.search(self.config['memberdn'],
+                             ldap.SCOPE_SUBTREE, filter, None)
+        users = []
+        while 1:
+            result_type, result_data = l.result(result_id, 0)
+            if result_data == []:
+                break
+            else:
+                if result_type == ldap.RES_SEARCH_ENTRY:
+                    users.append(self.User(result_data[0][1]))
+        return users
 
     def check_credentials(self, username, password):
         try:
@@ -64,9 +82,8 @@ class LDAPTools():
 
     class User(UserMixin):
 
-        def __init__(self, attr, domain):
+        def __init__(self, attr):
             self.__dict__.update(attr)
-            self.domain = domain
 
         def get_id(self):
             return self.uid[0]
@@ -95,6 +112,10 @@ class LDAPTools():
         @property
         def main_alliance(self):
             return self.alliance[0]
+
+        @property
+        def status(self):
+            return self.accountStatus[0]
 
         def get_authgroups(self):
             if not hasattr(self, "authGroup"):

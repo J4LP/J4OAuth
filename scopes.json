@@ -6,6 +6,12 @@
         "icon": "info"
     },
     {
+        "slug": "auth_groups",
+        "name": "Auth Groups",
+        "description": "Access to your auth groups used for permissions",
+        "icon": "group"
+    },
+    {
         "slug": "characters",
         "name": "Characters",
         "description":"Access to all the characters associated with your auth account with a limited API access to their core data.",

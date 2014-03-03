@@ -105,6 +105,9 @@ def authorize(*args, **kwargs):
                                    query_string=request.query_string, **kwargs)
         if not token:
             # No ? Let's ask the user then
+            kwargs['token'] = token
+            print(kwargs['scopes'])
+            kwargs['scopes'] = kwargs['scopes']
             return render_template('oauth_authorize.html',
                                    query_string=request.query_string, **kwargs)
         # Everything match ? Done.
