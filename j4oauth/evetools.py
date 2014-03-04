@@ -75,7 +75,8 @@ def get_skill(skill_id):
             for skill in skill_group.skills:
                 if skill['typeID'] == skill_id:
                     _skill = {
-                        'name': skill['typeName'],
+                        'skill_id': skill_id,
+                        'skill_name': skill['typeName'],
                         'group_name': skill_group['groupName'],
                         'group_id': skill_group['groupID']
                     }
@@ -142,12 +143,7 @@ class EveTools(object):
         skills = []
         for skill in sheet.skills:
             _skill = get_skill(skill.typeID)
-            skills.append({
-                'name': _skill['name'],
-                'group_name': _skill['group_name'],
-                'group_id': _skill['group_id'],
-                'level': skill.level
-            })
+            skills.append(dict(level=skill.level, **_skill))
         return skills
 
     @staticmethod
