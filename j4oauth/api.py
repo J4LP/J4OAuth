@@ -29,6 +29,7 @@ def auth_groups(req):
     """
     return jsonify(groups=[group for group in req.user.get_authgroups()])
 
+
 @api.route('/v1/characters')
 @oauth.require_oauth('characters')
 def characters(req):
@@ -42,7 +43,6 @@ def characters(req):
                     for character in eve.get_characters()])
 
 
-
 @api.route('/v1/corporation/<corporation_name>/users')
 @api_check
 def corporation_users(resp, corporation_name):
@@ -53,38 +53,50 @@ def corporation_users(resp, corporation_name):
         return jsonify(error='Unauthorized access'), 403
     users = ldaptools.get_users('corporation={}'.format(corporation_name))
     return jsonify(users=[{
-        'user_id': user.id,
-        'character': user.character_name,
-        'corporation': user.main_corporation,
-        'alliance': user.main_alliance,
-        'status': user.status
-    } for user in users])
+                              'user_id': user.id,
+                              'character': user.character_name,
+                              'corporation': user.main_corporation,
+                              'alliance': user.main_alliance,
+                              'status': user.status
+                          } for user in users])
 
 
 @api.route('/v1/user/<username>')
 @api_check
 def user_info(username):
     """
-    Returns all the auth info for a specific user
+    Returns all the auth info for a specific user and all its characters
     """
     user = ldaptools.get_user(username)
+    if user is None:
+        return jsonify(), 404
+    eve = EveTools(key_id=user.keyID[0], vcode=user.vCode[0])
+    characters = eve.safe_request('account/APIKeyInfo').key.characters
     return jsonify(user={
         'main_character': user.character_name,
         'corporation': user.main_corporation,
         'alliance': user.main_alliance,
-        'auth_status': user.accountStatus[0]
+        'auth_status': user.accountStatus[0],
+        'characters': [
+            {'character_id': character['characterID'],
+             'character_name': character['characterName'],
+             'corporation_id': character['corporationID'],
+             'corporation_name': character['corporationName']}
+            for character in characters]
     })
 
 
-@api.route('/v1/user/<username>/skills')
+@api.route('/v1/user/<username>/<character_id>/skills')
 @api_check
-def user_skills(username):
+def user_skills(username, character_id):
     """
     Returns all the skills for a specific user
     """
     user = ldaptools.get_user(username)
+    if user is None:
+        return jsonify(), 404
     eve = EveTools(key_id=user.keyID[0], vcode=user.vCode[0], cache=True)
-    return jsonify(skills=eve.get_skills(user.character_id))
+    return jsonify(skills=eve.get_skills(character_id))
 
 
 @api.route('/v1/user/<username>/assets')
