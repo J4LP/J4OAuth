@@ -14,7 +14,9 @@ def auth_user(req):
     We also protected this request with the scope 'info'
     """
     return jsonify(user={
+        'user_id': req.user.id,
         'main_character': req.user.character_name,
+        'main_character_id': req.user.character_id,
         'corporation': req.user.main_corporation,
         'alliance': req.user.main_alliance,
         'auth_status': req.user.accountStatus[0]
