@@ -49,8 +49,11 @@ class ReverseProxied(object):
 def api_check(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        api = request.args.get('api_key', None)
-        if api is None or api != '6GmaAURBH0bKzDsljneFsA':
-            return abort(403)
+        from j4oauth.models import Client
+        client = Client.query.filter_by(
+            client_id=request.headers.get('X-Oauth-Key'),
+            client_secret=request.headers.get('X-Oauth-Secret')).first()
+        if client is None or not client.admin_access:
+            abort(403)
         return f(*args, **kwargs)
     return decorated_function

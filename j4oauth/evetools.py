@@ -157,7 +157,6 @@ class EveTools(object):
             result.append(EveTools.row_to_dict(row))
         return result
 
-
     @staticmethod
     def row_to_dict(row):
         """
@@ -166,7 +165,11 @@ class EveTools(object):
         """
         result = {}
         for index, key in enumerate(row.__dict__['_cols']):
-            result[key] = row.__dict__['_row'][index]
+            if index < len(row.__dict__['_row']):
+                if isinstance(row.__dict__['_row'][index], eveapi.IndexRowset):
+                    result[key] = EveTools.rowset_to_dict(row.__dict__['_row'][index])
+                else:
+                    result[key] = row.__dict__['_row'][index]
         return result
 
     @staticmethod
@@ -179,7 +182,6 @@ class EveTools(object):
         for key, value in element.__dict__.iteritems():
             if isinstance(value, eveapi.Rowset) or isinstance(
                     value, eveapi.IndexRowset):
-                print(EveTools.rowset_to_dict(value))
                 result[key] = EveTools.rowset_to_dict(value)
             else:
                 if key not in ('_meta', '_name', '_isrow'):
