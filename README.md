@@ -4,6 +4,7 @@ J4OAuth
 OAuth2 Provider that plugs into your Eve Online alliance auth backend !
 
 ## Getting Started
+
 Clone the repository:
 
     git clone https://github.com/j4lp/j4oauth.git
@@ -32,6 +33,9 @@ Launch j4oauth:
 
     python run.py # Defaults on port 5000
 
+## Dependencies
+
+This project relies on a SQL database (it can be MySQL, SQLite or PostgreSQL) to store tokens and applications. At the moment, the only method of authentication relies on LDAP, see NewAuth for more informations.
 
 ## Contributing
 
